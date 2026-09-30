@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: rocket-rally
+    runtime: node
+    plan: free
+    buildCommand: npm run check && npm test
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 24
