@@ -40,12 +40,14 @@ export function special(g,c){
 function targetStep(g,p,idx,amount){
  const l=layout(g.settings.size,g.settings.direction,p.seat),v=p.rockets[idx];
  if(v<0)return [4,8].includes(amount)?0:null;
- if(v===l.path.length-1)return null;
- let to=Math.max(0,v+amount);
- if(!p.captured&&v<l.outer.length&&to>=l.outer.length)to%=l.outer.length;
- return Math.min(to,l.path.length-1);
+ const last=l.path.length-1;
+ if(v===last)return null;
+ const to=v+amount;
+ if(amount>0&&to>last)return null;
+ return Math.max(0,to);
 }
 function ownCollision(g,p,i,to){const l=layout(g.settings.size,g.settings.direction,p.seat),c=l.path[to];return !safe(g,c)&&p.rockets.some((v,j)=>j!==i&&v>=0&&eq(l.path[v],c))}
+function landingGate(g,p,i){const l=layout(g.settings.size,g.settings.direction,p.seat);return p.rockets[i]===l.gate-1}
 export function legalMoves(g){
  if(g.phase!=='playing'||g.step!=='move')return[];const p=g.players[g.turn];
  return p.rockets.flatMap((v,i)=>{const to=targetStep(g,p,i,g.score);if(to===null||ownCollision(g,p,i,to))return[];
@@ -95,7 +97,7 @@ export function perform(g,actor,a,random=()=>randomInt(2)){
  if(a.type==='move'&&g.step==='move'){
   if(!legalMoves(g).includes(a.rocket))throw Error('Choose a highlighted rocket.');
   const i=a.rocket;p.rockets[i]=targetStep(g,p,i,g.score);captureAt(g,p,i);
-  const effect=special(g,cell(g,p,i));
+  const effect=landingGate(g,p,i)?null:special(g,cell(g,p,i));
   if(effect==='supply'){p.missiles=Math.min(2,p.missiles+1);log(g,`${p.name} collected a missile cache.`,'supply')}
   if(effect==='boost'||effect==='asteroid'){
    const to=targetStep(g,p,i,effect==='boost'?2:-2);if(to!==null&&!ownCollision(g,p,i,to)){p.rockets[i]=to;captureAt(g,p,i);log(g,`${p.name} ${effect==='boost'?'boosted two cells':'hit an asteroid and drifted back two cells'}.`,effect)}

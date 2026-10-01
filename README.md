@@ -52,7 +52,7 @@ The Render service is still required for multiplayer.
 - 5×5 reference board and 7×7 larger board; mirrored direction option.
 - Four rockets per player, safe starts, color and symbol fleet identities.
 - Four cowries: 1, 2, 3, 4, or 8; score labels and bonus casts.
-- Landing captures, capture-required inward entry, protected inner rockets, overshoot-to-finish, all-four victory.
+- Landing captures, color-specific inward entry, protected inner rockets, exact-score finish, all-four victory.
 - Supply caches, capped missile inventory, range-checked attacks, boosts, asteroids and paired wormholes.
 - Optional 4/8 launch gate, own-piece blocking, two-bonus limit, 30/45-second or disabled timer.
 - Host settings, readiness, available fleet colors, host transfer, idle-player removal, rematches.
@@ -63,9 +63,9 @@ The Render service is still required for multiplayer.
 
 - The provided 5×5 coordinate sequence is preserved exactly. Opposite direction is its horizontal mirror, keeping start and center intact. Paths are rotated for the four bases.
 - The 7×7 route covers all 49 cells but uses **50 route positions**: after the outer loop, one perimeter cell is revisited to connect to the inner spiral by an adjacent step. A bottom-middle-to-center route visiting every 7×7 cell exactly once cannot use only orthogonal moves because its endpoint parity differs. The supplied 7×7 reference did not specify arrows; this connector is the explicit implementation choice.
-- Without a capture, a rocket wraps around the outer ring. Once any rocket makes a landing capture, all four may enter inward on their next crossing of the gate.
-- Missile range is the shortest distance along the perimeter from **any** of the attacker's outer rockets. Firing is optional, once after movement, and never grants an inward unlock or bonus cast.
-- A tile effect resolves once. A forced boost/warp that would land on an own rocket outside a safe square is suppressed. Asteroids at the beginning of a route clamp at Safe Start.
+- Every rocket follows its own color-rotated route from start, through the outer lap, into the landing spiral, and then to the planet. Captures still grant a bonus cast, but they do not gate spiral entry.
+- Missile range is the shortest distance along the perimeter from **any** of the attacker's outer rockets. Firing is optional, once after movement, and never grants a bonus cast.
+- A tile effect resolves once. A forced boost/warp that would land on an own rocket outside a safe square is suppressed. Asteroids at the beginning of a route clamp at Safe Start. Entry-gate cells do not trigger tile effects, so rockets continue into their landing spiral.
 - Timer expiry selects the first legal rocket if waiting for movement; otherwise it skips the pending action. It never spends missiles. With all clients offline, timer processing pauses; on return, an expired turn may be resolved immediately.
 - Disconnected seats remain reserved; the host may remove one after two minutes during a match. Removing/leaving forfeits the seat. Last remaining player wins by forfeit.
 - A room expires after six hours without state activity. Session tokens stay in browser session storage: refreshes and network reconnects retain the seat, but closing a browser tab can discard it. No permanent profiles or cross-device seat recovery.
@@ -87,7 +87,7 @@ The Render service is still required for multiplayer.
 
 Automated tests exercise exact and rotated paths, both sizes, captures, protected squares, gate entry, missile rules, launch restrictions, special effects, victory, simulated full matches, and real HTTP/SSE synchronization with two authenticated clients, stale versions, duplicate actions, host transfer, and reconnect snapshots.
 
-The original supplied design plan is in `docs/design-plan.md`. The implemented rules above resolve its draft choices. Real group playtests are still needed to validate game duration and balance, especially the capture gate and missile resets. External hosting smoke tests must be run after deployment; this package does not assert uptime or permanent room storage.
+The original supplied design plan is in `docs/design-plan.md`. The implemented rules above resolve its draft choices. Real group playtests are still needed to validate game duration and balance, especially exact-score finishing and missile resets. External hosting smoke tests must be run after deployment; this package does not assert uptime or permanent room storage.
 
 ### Verification environment limitation
 
