@@ -2,6 +2,23 @@
 
 **Cast. Capture. Claim the cosmos.** A live browser board game for 2–4 players, with four rockets each, room codes, synchronized turns, and no player accounts.
 
+## Public multiplayer, goals, and chat
+
+- **Play with anyone:** the home screen refreshes public rooms every 10 seconds. Join a waiting room directly after entering a pilot name. New rooms are public by default; uncheck the listing option to keep a room invitation-only. Full rooms and matches in progress are visible but cannot be joined mid-match. At least two real players are required; Rally Bot does not play opponents.
+- **Host controls:** everyone readies up, then the host launches. Disconnected lobby seats are released after two minutes. Public listings hide abandoned rooms after 90 seconds. Host control transfers to another connected pilot when the host disconnects.
+- **Rewards:** completing a normal match earns 20 points, winning adds 100, and captures add 5 each (maximum 50 per match). Players must make at least one move and remain in the match. Forfeit finishes do not award points or goal progress. The server calculates and settles rewards once, including after timer-driven finishes.
+- **Goals:** First flight (complete 1 match, +25), Planet claimer (win 1 match, +50), Regular pilot (complete 5 matches, +100), Rocket hunter (capture 5 rockets, +75), and Homeward bound (land 10 rockets, +100). Goal progress comes from eligible completed matches; each bonus is automatic and awarded once per pilot.
+- **Global leaderboard:** the top 100 pilots on the same game server, ordered by points, then wins. Open **Goals & leaderboard** from the header for your rank, progress, and rewards. Refresh it for the latest results. Profiles use a secret browser-saved token; duplicate display names are allowed. Use the same browser and site address to retain your identity. This is a casual leaderboard without cross-device account recovery or competitive anti-collusion controls.
+- **Crew chat:** room members can chat before, during, and after a match. Rally Bot answers `/help` and `/points`. Non-hosts can use **Remind host to start** or `/remind` in the lobby; reminders reach everyone and show a toast to the host. Messages allow 300 characters, with a 1.5-second per-player cooldown and a room-wide 30-second reminder cooldown. The latest 60 messages are retained. This is a command-based helper, not an AI model.
+
+### Keeping leaderboard points online
+
+The server saves profiles, points, goal progress, chat, and rooms together in `data/rooms.json` by default. Set `ROOM_FILE` to a file on your host's **persistent volume** to preserve this information through redeploys, for example `/var/data/rocket-rally/rooms.json` when `/var/data` is your mounted persistent directory. Run one server instance with this file store, and back up the file securely: it contains private profile and room credentials. Never commit it or place it under `public/`.
+
+The included free-service deployment template does not configure durable storage. It is suitable for trying the game, but a lasting online leaderboard requires a persistent volume or a database implementation before launch. Local saves survive ordinary server restarts. The server reads legacy room-only save files and migrates them on the next save. Existing legacy seats have no reward profile; their players should leave and rejoin before playing ranked matches.
+
+The downloadable release omits runtime save files, so it starts with an empty leaderboard. Keep your production save on its persistent volume when updating the app.
+
 ## Start locally
 
 Install Node.js 22 or newer (24 recommended), open this folder in a terminal, and run:

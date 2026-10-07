@@ -77,7 +77,7 @@ export function next(g){
 export function start(g){
  if(g.players.filter(p=>!p.left).length<2)throw Error('At least two players are needed.');
  g.players=g.players.filter(p=>!p.left).sort((a,b)=>a.seat-b.seat);for(const p of g.players){p.rockets=Array(4).fill(g.settings.launch?-1:0);p.captured=false;p.missiles=0;p.stats={captures:0,fired:0,crashed:0}}
- g.phase='playing';g.winner=null;g.started=Date.now();g.turn=randomInt(g.players.length);g.bonus=false;g.bonusCount=0;g.score=null;g.shells=[];g.step='cast';log(g,'Launch sequence complete. Race for the planet!','start');deadline(g);
+ g.phase='playing';g.winner=null;g.rewardsSettled=false;g.rewards=[];g.rewardNote=null;g.lastReminderAt=0;g.started=Date.now();g.turn=randomInt(g.players.length);g.bonus=false;g.bonusCount=0;g.score=null;g.shells=[];g.step='cast';log(g,'Launch sequence complete. Race for the planet!','start');deadline(g);
 }
 export function perform(g,actor,a,random=()=>randomInt(2)){
  const p=g.players.find(p=>p.id===actor&&!p.left);if(!p)throw Error('Your seat is no longer in this room.');
@@ -96,6 +96,7 @@ export function perform(g,actor,a,random=()=>randomInt(2)){
  }
  if(a.type==='move'&&g.step==='move'){
   if(!legalMoves(g).includes(a.rocket))throw Error('Choose a highlighted rocket.');
+  p.stats.moves=(p.stats.moves||0)+1;
   const i=a.rocket;p.rockets[i]=targetStep(g,p,i,g.score);captureAt(g,p,i);
   const effect=landingGate(g,p,i)?null:special(g,cell(g,p,i));
   if(effect==='supply'){p.missiles=Math.min(2,p.missiles+1);log(g,`${p.name} collected a missile cache.`,'supply')}
